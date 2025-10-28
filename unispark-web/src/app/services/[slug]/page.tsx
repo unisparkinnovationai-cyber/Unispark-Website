@@ -3,18 +3,16 @@ import { notFound } from 'next/navigation'
 
 export async function generateStaticParams() {
   const services = await getServices()
-  
-  return services.map((service) => ({
-    slug: service.slug,
-  }))
+  return services.map((service) => ({ slug: service.slug }))
 }
 
 export default async function ServiceDetailPage({ 
   params 
 }: { 
-  params: { slug: string } 
+  params: Promise<{ slug: string }> 
 }) {
-  const service = await getServiceBySlug(params.slug)
+  const { slug } = await params
+  const service = await getServiceBySlug(slug)
 
   if (!service) {
     notFound()
@@ -102,8 +100,9 @@ export default async function ServiceDetailPage({
   )
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const service = await getServiceBySlug(params.slug)
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const service = await getServiceBySlug(slug)
   
   if (!service) {
     return {
